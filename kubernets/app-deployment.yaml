@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reservation-service-deployment
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: reservation-service
+  template:
+    metadata:
+      name: reservation-service
+      labels:
+        app: reservation-service
+    spec:
+      containers:
+      - name: reservation-service
+        image: fjunior/reservation-service:v1
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 3000

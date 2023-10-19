@@ -1,0 +1,87 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: reservation-service-db-pv
+spec:
+  capacity:
+    storage: 250Mi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/var/lib/mysql"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: reservation-service-db-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 250Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: reservation-service-db-service
+spec:
+  type: NodePort
+  selector:
+    app: reservation-service-db
+  ports:
+    - port: 3306
+      targetPort: 3306
+      nodePort: 30007
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reservation-service-db-deployment
+  labels:
+    app: reservation-service-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: reservation-service-db
+  template:
+    metadata:
+      labels:
+        app: reservation-service-db
+    spec:
+      volumes:
+        - name: reservation-service-db-pv
+          persistentVolumeClaim:
+            claimName: reservation-service-db-pvc
+      containers:
+        - name: reservation-db
+          image: mysql:latest
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-root-pass
+                  key: password
+            - name: MYSQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-db-url
+                  key: database
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-user-pass
+                  key: username
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-user-pass
+                  key: password
+          volumeMounts:
+            - name: reservation-service-db-pv
+              mountPath: /var/lib/mysql
+          ports:
+            - containerPort: 3306
+              name: reservation-db

@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: reservation-service
+  labels:
+    name: reservation-service
+spec:
+  containers:
+    - name: reservation-service
+      image: fjunior/reservation-service:v1
+      imagePullPolicy: Always
+      ports:
+        - containerPort: 3000

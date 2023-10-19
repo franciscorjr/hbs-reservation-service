@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  nodejs-app:
+    image: fjunior/reservation-service:v1
+    container_name: reservation-service
+    working_dir: /app
+    command: "npm run dev"
+    volumes:
+      - .:/app
+    ports:
+      - 3000:3000
+    depends_on:
+      - reservation-db      
+
+  reservation-db:
+    image: mysql:8
+    container_name: reservation-service-db-service
+    environment:
+      MYSQL_USER: reservation-app-user
+      MYSQL_PASSWORD: reservation-secret-123
+      MYSQL_ROOT_PASSWORD: reservation-secret-123
+      MYSQL_DATABASE: reservation-db
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+    ports:
+      - 3306:3306
+  
