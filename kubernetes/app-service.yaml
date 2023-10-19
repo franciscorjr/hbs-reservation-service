@@ -3,7 +3,6 @@ kind: Service
 metadata:
   name: reservation-service-service
 spec:
-  type: LoadBalancer
   selector:
     app: reservation-service
   ports:
